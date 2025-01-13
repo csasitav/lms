@@ -1,25 +1,14 @@
-@Library("jhc-libs") _
-
+@Library("lms-jhc-slibs") _
 pipeline {
     agent any
 
     stages {
-        stage('Git Checkout') {
+        stage('Name calling') {
             steps {
-               git branch: 'main', credentialsId: 'javahometech', url: 'https://github.com/javahometech/lms'
+                welcome("Asitav")
+                welcome("Ravindra")
+                welcome("Amitav")
             }
         }
-        stage('Maven Build') {
-            steps {
-               sh 'mvn clean package'
-            }
-        }
-        
-        stage('Dev Deploy') {
-            steps {
-                tomcatDeploy("ec2-user","172.31.14.193","tomcat-dev","lms")
-            }
-        }
-        
     }
 }
