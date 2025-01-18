@@ -3,18 +3,61 @@ pipeline {
     
     stages {
         stage('Git checkout') {
+            when {
+                branch "develop"
+            }
             steps {
                 git branch: 'main', credentialsId: 'git-jenkins', url: 'https://github.com/csasitav/lms' 
             }
         }
         
         stage('Maven Build') {
+            when {
+                branch "develop"
+            }
             steps {
                 sh 'mvn clean package'
             }
         }
         
         stage('Deploy into Dev') {
+            when {
+                branch "develop"
+            }
+            steps {
+                // Connect to Tomcat
+                sshagent(['tomcat-Dev']) {
+                    // Copy WAR files to Tomcat server
+                    sh 'scp target/lms.war ec2-user@172.31.23.74:/opt/tomcat/webapps'
+                    
+                    // Restart the Tomcat Server
+                    sh 'ssh ec2-user@172.31.23.74 /opt/tomcat/bin/shutdown.sh'
+                    sh 'ssh ec2-user@172.31.23.74 /opt/tomcat/bin/startup.sh'
+                    
+                }
+            }
+        }
+        stage('Deploy into Stage') {
+            when {
+                branch "stage"
+            }
+            steps {
+                // Connect to Tomcat
+                sshagent(['tomcat-Dev']) {
+                    // Copy WAR files to Tomcat server
+                    sh 'scp target/lms.war ec2-user@172.31.23.74:/opt/tomcat/webapps'
+                    
+                    // Restart the Tomcat Server
+                    sh 'ssh ec2-user@172.31.23.74 /opt/tomcat/bin/shutdown.sh'
+                    sh 'ssh ec2-user@172.31.23.74 /opt/tomcat/bin/startup.sh'
+                    
+                }
+            }
+        }
+        stage('Deploy into Prod') {
+            when {
+                branch "Prod"
+            }
             steps {
                 // Connect to Tomcat
                 sshagent(['tomcat-Dev']) {
