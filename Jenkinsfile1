@@ -56,7 +56,7 @@ pipeline {
         }
         stage('Deploy into Prod') {
             when {
-                branch "Prod"
+                branch "PROD"
             }
             steps {
                 // Connect to Tomcat
